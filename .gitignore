@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# data
+./src/data/data/
+./src/data/old_txt_files/
+./src/data/VOCdevkit/
+./src/data/*.csv
+./src/data/*.txt
