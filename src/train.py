@@ -102,6 +102,8 @@ def main():
 
     start_epoch = 0
 
+    global LOAD_MODEL_FILE
+
     if len(sys.argv) > 1 and sys.argv[1] == '-l':
         if len(sys.argv) > 2:
             LOAD_MODEL_FILE = sys.argv[2]
