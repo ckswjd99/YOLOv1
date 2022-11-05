@@ -73,7 +73,7 @@ def train_fn(train_loader, model, optimizer, loss_fn):
         # update progress bar
         loop.set_postfix(loss=loss.item())
 
-    print(f"Mean loss was {sum(mean_loss)/len(mean_loss)}")
+    print(f"Train - Mean loss was {sum(mean_loss)/len(mean_loss)}")
 
 def test_fn(test_loader, model, loss_fn):
     model.eval()
@@ -90,7 +90,7 @@ def test_fn(test_loader, model, loss_fn):
         # update progress bar
         loop.set_postfix(loss=loss.item())
 
-    print(f"Mean loss was {sum(mean_loss)/len(mean_loss)}")
+    print(f"Test - Mean loss was {sum(mean_loss)/len(mean_loss)}")
 
 
 def main():
