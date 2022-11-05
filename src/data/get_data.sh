@@ -18,9 +18,6 @@ tar xf VOCtrainval_11-May-2012.tar
 tar xf VOCtrainval_06-Nov-2007.tar
 tar xf VOCtest_06-Nov-2007.tar
 
-# Need voc_label.py to clean up data from xml files
-wget https://pjreddie.com/media/files/voc_label.py
-
 # Run python file to clean data from xml files
 python3 voc_label.py
 

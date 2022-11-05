@@ -129,8 +129,14 @@ dmypy.json
 .pyre/
 
 # data
-./src/data/data/
-./src/data/old_txt_files/
-./src/data/VOCdevkit/
-./src/data/*.csv
-./src/data/*.txt
+src/data/data/
+src/data/data/images/
+src/data/data/labels/
+src/data/old_txt_files/
+
+src/data/VOCdevkit/
+src/data/*.csv
+src/data/*.txt
+src/data/*.tar
+
+

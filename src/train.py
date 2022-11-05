@@ -7,6 +7,7 @@ import torch
 import torchvision.transforms as transforms
 import torch.optim as optim
 import torchvision.transforms.functional as FT
+import sys
 from tqdm import tqdm
 from torch.utils.data import DataLoader
 from model import Yolov1
@@ -80,8 +81,10 @@ def main():
     )
     loss_fn = YoloLoss()
 
-    if LOAD_MODEL:
-        load_checkpoint(torch.load(LOAD_MODEL_FILE), model, optimizer)
+    start_epoch = 0
+
+    if len(sys.argv) > 1 and sys.argv[1] == '-l':
+        start_epoch = load_checkpoint(torch.load(LOAD_MODEL_FILE), model, optimizer)
 
     print(f"Training device: {DEVICE}")
 
@@ -120,7 +123,7 @@ def main():
 
     print("Test data loaded!")
 
-    for epoch in range(EPOCHS):
+    for epoch in range(start_epoch, EPOCHS):
         # for x, y in train_loader:
         #    x = x.to(DEVICE)
         #    for idx in range(8):
@@ -142,14 +145,15 @@ def main():
         )
         print(f"[epoch{epoch}]Train mAP: {mean_avg_prec}")
 
-        #if mean_avg_prec > 0.9:
-        #    checkpoint = {
-        #        "state_dict": model.state_dict(),
-        #        "optimizer": optimizer.state_dict(),
-        #    }
-        #    save_checkpoint(checkpoint, filename=LOAD_MODEL_FILE)
-        #    import time
-        #    time.sleep(10)
+        if mean_avg_prec > 0.9:
+           checkpoint = {
+               "state_dict": model.state_dict(),
+               "optimizer": optimizer.state_dict(),
+               "epoch": epoch
+           }
+           save_checkpoint(checkpoint, filename=LOAD_MODEL_FILE)
+           import time
+           time.sleep(10)
 
         print(f"[epoch{epoch}]Backprop!")
         train_fn(train_loader, model, optimizer, loss_fn)
