@@ -178,6 +178,7 @@ def main():
         pred_boxes, target_boxes = get_bboxes(
             test_loader, model, iou_threshold=0.5, threshold=0.4
         )
+        print(f"[epoch{epoch}]Test mAP: {mean_avg_prec}")
 
         print(f"[epoch{epoch}]Test - Call mean_average_precision...")
         mean_avg_prec = mean_average_precision(
