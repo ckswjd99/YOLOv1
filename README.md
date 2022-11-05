@@ -1,1 +1,1 @@
-# YOLOv1
+# YOLO
