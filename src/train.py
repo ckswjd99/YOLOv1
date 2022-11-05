@@ -82,8 +82,11 @@ def main():
     loss_fn = YoloLoss()
 
     start_epoch = 0
+    max_map = 0
 
     if len(sys.argv) > 1 and sys.argv[1] == '-l':
+        if len(sys.argv) > 2:
+            LOAD_MODEL_FILE = sys.argv[2]
         start_epoch = load_checkpoint(torch.load(LOAD_MODEL_FILE), model, optimizer)
 
     print(f"Training device: {DEVICE}")
@@ -144,16 +147,17 @@ def main():
             pred_boxes, target_boxes, iou_threshold=0.5, box_format="midpoint"
         )
         print(f"[epoch{epoch}]Train mAP: {mean_avg_prec}")
+        max_map = max(max_map, mean_avg_prec)
 
-        if mean_avg_prec > 0.9:
-           checkpoint = {
+        if mean_avg_prec > 0.9 and max_map == mean_avg_prec:
+            checkpoint = {
                "state_dict": model.state_dict(),
                "optimizer": optimizer.state_dict(),
                "epoch": epoch
-           }
-           save_checkpoint(checkpoint, filename=LOAD_MODEL_FILE)
-           import time
-           time.sleep(10)
+            }
+            save_checkpoint(checkpoint, filename=LOAD_MODEL_FILE)
+            import time
+            time.sleep(10)
 
         print(f"[epoch{epoch}]Backprop!")
         train_fn(train_loader, model, optimizer, loss_fn)
