@@ -56,6 +56,8 @@ transform = Compose([transforms.Resize((448, 448)), transforms.ToTensor(),])
 
 
 def train_fn(train_loader, model, optimizer, loss_fn):
+    model.train()
+
     loop = tqdm(train_loader, leave=True)
     mean_loss = []
 
@@ -67,6 +69,23 @@ def train_fn(train_loader, model, optimizer, loss_fn):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+
+        # update progress bar
+        loop.set_postfix(loss=loss.item())
+
+    print(f"Mean loss was {sum(mean_loss)/len(mean_loss)}")
+
+def test_fn(test_loader, model, loss_fn):
+    model.eval()
+    
+    loop = tqdm(test_loader, leave=True)
+    mean_loss = []
+
+    for batch_idx, (x, y) in enumerate(loop):
+        x, y = x.to(DEVICE), y.to(DEVICE)
+        out = model(x)
+        loss = loss_fn(out, y)
+        mean_loss.append(loss.item())
 
         # update progress bar
         loop.set_postfix(loss=loss.item())
@@ -126,15 +145,7 @@ def main():
     print("Test data loaded!")
 
     for epoch in range(start_epoch, EPOCHS):
-        # for x, y in train_loader:
-        #    x = x.to(DEVICE)
-        #    for idx in range(8):
-        #        bboxes = cellboxes_to_boxes(model(x))
-        #        bboxes = non_max_suppression(bboxes[idx], iou_threshold=0.5, threshold=0.4, box_format="midpoint")
-        #        plot_image(x[idx].permute(1,2,0).to("cpu"), bboxes)
-
-        #    import sys
-        #    sys.exit()
+        # train
 
         print(f"[epoch{epoch}]Call get_bboxes...")
         pred_boxes, target_boxes = get_bboxes(
@@ -147,7 +158,7 @@ def main():
         )
         print(f"[epoch{epoch}]Train mAP: {mean_avg_prec}")
 
-        if mean_avg_prec > 0.9:
+        if mean_avg_prec > 0.1:
             checkpoint = {
                "state_dict": model.state_dict(),
                "optimizer": optimizer.state_dict(),
@@ -159,6 +170,22 @@ def main():
 
         print(f"[epoch{epoch}]Backprop!")
         train_fn(train_loader, model, optimizer, loss_fn)
+
+        # test
+        print(f"[epoch{epoch}]Test - Call get_bboxes...")
+        pred_boxes, target_boxes = get_bboxes(
+            test_loader, model, iou_threshold=0.5, threshold=0.4
+        )
+
+        print(f"[epoch{epoch}]Test - Call mean_average_precision...")
+        mean_avg_prec = mean_average_precision(
+            pred_boxes, target_boxes, iou_threshold=0.5, box_format="midpoint"
+        )
+
+        test_fn(test_loader, model, loss_fn)
+
+
+
 
 
 if __name__ == "__main__":
