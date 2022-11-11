@@ -102,6 +102,8 @@ def main():
 
     start_epoch = 0
 
+    best_test_map = -1
+
     global LOAD_MODEL_FILE
 
     if len(sys.argv) > 1 and sys.argv[1] == '-l':
@@ -160,15 +162,7 @@ def main():
         )
         print(f"[epoch{epoch}]Train mAP: {mean_avg_prec}")
 
-        if mean_avg_prec > 0.1:
-            checkpoint = {
-               "state_dict": model.state_dict(),
-               "optimizer": optimizer.state_dict(),
-               "epoch": epoch
-            }
-            save_checkpoint(checkpoint, filename=LOAD_MODEL_FILE)
-            import time
-            time.sleep(10)
+        
 
         print(f"[epoch{epoch}]Backprop!")
         train_fn(train_loader, model, optimizer, loss_fn)
@@ -184,6 +178,18 @@ def main():
             pred_boxes, target_boxes, iou_threshold=0.5, box_format="midpoint"
         )
         print(f"[epoch{epoch}]Test mAP: {mean_avg_prec}")
+
+        if (mean_avg_prec > best_test_map):
+            best_test_map = mean_avg_prec
+            checkpoint = {
+               "state_dict": model.state_dict(),
+               "optimizer": optimizer.state_dict(),
+               "epoch": epoch
+            }
+            save_checkpoint(checkpoint, filename=LOAD_MODEL_FILE)
+            import time
+            time.sleep(10)
+
 
         test_fn(test_loader, model, loss_fn)
 
